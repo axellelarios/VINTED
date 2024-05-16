@@ -1,0 +1,23 @@
+{
+  "name": "exercice-jour-5",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cloudinary": "^2.2.0",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
+    "crypto.js": "^3.2.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-fileupload": "^1.5.0",
+    "mongoose": "^8.3.4",
+    "uid2": "^1.0.0"
+  },
+  "description": ""
+}
