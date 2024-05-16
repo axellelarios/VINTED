@@ -20,7 +20,7 @@ require("dotenv").config();
 
 //-- Mongoose
 const mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost:27017/Vinted");
+mongoose.connect("process.env.MONGODB_URI");
 
 //-- Encryptage mot de passe
 const SHA256 = require("crypto-js/sha256");
@@ -126,7 +126,7 @@ app.get("/offers", async (req, res) => {
        sort = { product_price: "asc"}
     }
     
-    // Création de la variable page qui vaut, pour l'instant, undefined
+    // Creation variable page
     let page;
     // Si le query page n'est pas un nombre >= à 1
     if (Number(req.query.page) < 1) {
@@ -152,7 +152,7 @@ app.get("/offers", async (req, res) => {
       .skip((page - 1) * limit)
       .select("product_name product_price -_id");
 
-      // cette ligne va nous retourner le nombre d'annonces trouvées en fonction des filtres
+      // count = retourne nombre d'annonce
       const count = await Offer.countDocuments(filters);
       res.json({
         count: count,
@@ -242,4 +242,4 @@ app.all("*", (req, res) => {
 // Je lance mon serveur
 app.listen(process.env.PORT, () => {
     console.log("Servor is live")
-})
+}) 
