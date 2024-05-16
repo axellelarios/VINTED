@@ -15,21 +15,21 @@ app.use(express.json())
 const fileUpload = require("express-fileupload") 
 
 // Variables DOTENV
-// Permet d'activer les variables d'environnement qui se trouvent dans le fichier `.env`
-require("dotenv").config();
+// Permet d'activer les variables d'environnement qui se trouvent dans le fichier `.env`  
+require('dotenv').config();
 
 //-- Mongoose
 const mongoose = require("mongoose");
-mongoose.connect("process.env.MONGODB_URI");
-
+mongoose.connect(process.env.MONGODB_URI);
+ 
 //-- Encryptage mot de passe
 const SHA256 = require("crypto-js/sha256");
-const encBase64 = require("crypto-js/enc-base64");
-const uid2 = require("uid2");
+const encBase64 = require("crypto-js/enc-base64");  
+const uid2 = require("uid2"); 
 
 
 //-- Import package cloudinary
-const cloudinary = require("cloudinary"); 
+const cloudinary = require("cloudinary");  
           
 cloudinary.config({ 
   cloud_name: process.env.CLOUDINARY_NAME, 
