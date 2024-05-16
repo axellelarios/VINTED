@@ -90,6 +90,10 @@ const isAuthenticated = async (req, res, next) => {
 /// ROUTES
 
 
+app.get("/", (req, res) => {
+  res.json({message: "It's live bitches!!"});  
+})
+
 app.get("/offers", async (req, res) => {
    try {
 
@@ -228,7 +232,7 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
           res.json(newOffer);  
 
     } catch (error) {
-        res.json({message: error.message }); 
+        res.json({message: error.message });  
     }  
 }) 
 
@@ -241,5 +245,5 @@ app.all("*", (req, res) => {
 
 // Je lance mon serveur
 app.listen(process.env.PORT, () => {
-    console.log("Servor is live 😊😊😊")
+    console.log("Servor is live 😊😊😊") 
 }) 
