@@ -211,13 +211,14 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
             product_details: [condition, city, brand, size, color], 
           }); 
 
-         console.log(req.files.picture)
+ 
+
           if (req.files === null || req.files.picture.length === 0) {
             res.send("No file uploaded!");
             return;
           }
           const arrayOfFilesUrl = [];
-          const picturesToUpload = req.files.pictures;
+          const picturesToUpload = req.files.picture;
 
           for (let i = 0; i < picturesToUpload.length; i++) {
              const picture = picturesToUpload[i];
@@ -228,7 +229,8 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
              arrayOfFilesUrl.push(result.secure_url);
           }
 
-   
+          res.json(arrayOfFilesUrl);
+
           newOffer = new Offer({
             product_name: title,
             product_description: description,
