@@ -211,8 +211,8 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
             product_details: [condition, city, brand, size, color], 
           }); 
 
-
-          if (req.files === null || req.files.pictures.length === 0) {
+         console.log(req.files.picture)
+          if (req.files === null || req.files.picture.length === 0) {
             res.send("No file uploaded!");
             return;
           }
@@ -233,7 +233,7 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
             product_name: title,
             product_description: description,
             product_price: price,
-            product_image: images,
+            product_image: arrayOfFilesUrl,
             product_details: [condition, city, brand, size, color],
             owner: req.user
           }); 
