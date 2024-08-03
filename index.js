@@ -212,13 +212,23 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
           }); 
 
 
-          let convertedPicture = convertToBase64(req.files.picture);
-          
-          let images = await cloudinary.uploader.upload(convertedPicture, {
-            folder: `/vinted/offers/${newOffer._id}`,
-            public_id: "olympic_flag" 
-          });
+          if (req.files === null || req.files.pictures.length === 0) {
+            res.send("No file uploaded!");
+            return;
+          }
+          const arrayOfFilesUrl = [];
+          const picturesToUpload = req.files.pictures;
 
+          for (let i = 0; i < picturesToUpload.length; i++) {
+             const picture = picturesToUpload[i];
+             const result = await cloudinary.uploader.upload(convertToBase64(picture), {
+              folder: `/vinted/offers/${newOffer._id}`,
+              public_id: "olympic_flag" 
+             });
+             arrayOfFilesUrl.push(result.secure_url);
+          }
+
+   
           newOffer = new Offer({
             product_name: title,
             product_description: description,
