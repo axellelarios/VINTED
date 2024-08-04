@@ -171,7 +171,7 @@ app.get("/offer/:id", async (req, res) => {
     // On va chercher l'offre correspondante à l'id reçu et on populate sa clef owner en sélectionnant uniquement les clefs username, phone et avatar de la clef account
     const offer = await Offer.findById(req.params.id).populate({
       path: "owner",
-      select: "account.username account.avatar",
+      select: "account.username account._id",
     });
     res.json(offer);
   } catch (error) {
@@ -396,7 +396,7 @@ app.post("/user/login", async (req, res) => {
           account: user.account,
         });
       } else {
-        res.status(401).json({ error: "Mot de passe erroné" });
+        res.status(401).json({ message: "Mot de passe erroné" });
       }
     } else {
       res.status(400).json({ message: "User not found" });
