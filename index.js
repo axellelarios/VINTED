@@ -191,25 +191,15 @@ app.post("/user/signup", fileUpload(),  async (req, res) => {
           return;
         }
 
-        console.log(req.files)
-
-        const avatarUrl = [];
-        const picturesToUpload = req.files.avatar;
-
-        for (let i = 0; i < picturesToUpload.length; i++) {
-           const picture = picturesToUpload[i];
-           const result = await cloudinary.uploader.upload(convertToBase64(picture), {
-            folder: `/vinted/user/${newUser._id}`,
-            public_id: "olympic_flag"
-           });
-           avatarUrl.push(result.secure_url);
-        }
+        const avatarToUpload = req.files.avatar;
+        // On envoie une à Cloudinary un buffer converti en base64
+        const avatar = await cloudinary.uploader.upload(convertToBase64( avatarToUpload));
 
         newUser = new User({
           email: email,
           account: {
             username : username,
-            avatar: avatarUrl
+            avatar: avatar
           },
           newsletter: newsletter,
           token: token ,
