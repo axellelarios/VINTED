@@ -284,98 +284,55 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
 }) 
 
 
-// POST :USER
+// POST :USER SIGNUP
 app.post("/user/signup", fileUpload(),  async (req, res) => {
-  try {
-    // Recherche dans la BDD. Est-ce qu'un utilisateur possède cet email ?
-    const user = await User.findOne({ email: req.body.email });
+    try {    
+        //Création de l'encryptage en fonction du mot de passe de l'utilisateur
+        const password = req.body.password;
+        const salt = uid2(30);
+        const hash = SHA256(password + salt).toString(encBase64);
+        const token = uid2(30);
 
-    // Si oui, on renvoie un message et on ne procède pas à l'inscription
-    if (user) {
-      res.status(409).json({ message: "This email already has an account" });
+        const { email, username, newsletter } = req.body;
 
-      // sinon, on passe à la suite...
-    } else {
-      // l'utilisateur a-t-il bien envoyé les informations requises ?
-      if (req.body.email && req.body.password && req.body.username) {
-        // Si oui, on peut créer ce nouvel utilisateur
+        let newUser = new User({
+            email: email,
+            account: {
+              username : username
+            },
+            newsletter: newsletter,
+            token: token ,
+            hash: hash,
+            salt: salt,           
+        }) 
 
-        // Étape 1 : encrypter le mot de passe
-        // Générer le token et encrypter le mot de passe
-        const token = uid2(64);
-        const salt = uid2(64);
-        const hash = SHA256(req.body.password + salt).toString(encBase64);
-
-        // Étape 2 : créer le nouvel utilisateur
-        const newUser = new User({
-          email: req.body.email,
-          token: token,
-          hash: hash,
-          salt: salt,
-          account: {
-            username: req.body.username,
-          },
-          newsletter: req.body.newsletter,
-        });
-
-        // Si je reçois une image, je l'upload sur cloudinary et j'enregistre le résultat dans la clef avatar de la clef account de mon nouvel utilisateur
-        if (req.files?.avatar) {
-          const result = await cloudinary.uploader.upload(
-            convertToBase64(req.files.avatar),
-            {
-              folder: `api/vinted-v2/users/${newUser._id}`,
-              public_id: "avatar",
-            }
-          );
-          newUser.account.avatar = result;
+        if (req.files === null || req.files.avatar.length === 0) {
+          res.send("No file uploaded!");
+          return;
         }
 
-        // Étape 3 : sauvegarder ce nouvel utilisateur dans la BDD
-        await newUser.save();
-        res.status(201).json({
-          _id: newUser._id,
-          email: newUser.email,
-          token: newUser.token,
-          account: newUser.account,
-        });
-      } else {
-        // l'utilisateur n'a pas envoyé les informations requises ?
-        res.status(400).json({ message: "Missing parameters" });
-      }
-    }
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ message: error.message });
-  }
-});
+        const avatarToUpload = req.files.avatar;
+        // On envoie une à Cloudinary un buffer converti en base64
+        const avatar = await cloudinary.uploader.upload(convertToBase64( avatarToUpload));
 
-router.post("/user/login", async (req, res) => {
-  try {
-    const user = await User.findOne({ email: req.body.email });
+        newUser = new User({
+          email: email,
+          account: {
+            username : username,
+            avatar: avatar
+          },
+          newsletter: newsletter,
+          token: token ,
+          hash: hash,
+          salt: salt,        
+        })
 
-    if (user) {
-      // Est-ce qu'il a rentré le bon mot de passe ?
-      // req.body.password
-      // user.hash
-      // user.salt
-      if (
-        SHA256(req.body.password + user.salt).toString(encBase64) === user.hash
-      ) {
-        res.status(200).json({
-          _id: user._id,
-          token: user.token,
-          account: user.account,
-        });
-      } else {
-        res.status(401).json({ error: "Unauthorized" });
-      }
-    } else {
-      res.status(400).json({ message: "User not found" });
-    }
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ message: error.message });
-  }
+        await newUser.save()
+        res.json(newUser); 
+
+    } catch (error) {
+        res.json({message: error.message });
+    }  
 })
 
 // POST :USER LOGIN
