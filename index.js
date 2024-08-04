@@ -197,8 +197,8 @@ app.post("/user/signup", fileUpload(),  async (req, res) => {
         for (let i = 0; i < picturesToUpload.length; i++) {
            const picture = picturesToUpload[i];
            const result = await cloudinary.uploader.upload(convertToBase64(picture), {
-            folder: `/vinted/user/${newOffer._id}`,
-            public_id: "olympic_flag" 
+            folder: `/vinted/user/${newUser._id}`,
+            public_id: "olympic_flag"
            });
            avatarUrl.push(result.secure_url);
         }
