@@ -396,10 +396,10 @@ app.post("/user/login", async (req, res) => {
           account: user.account,
         });
       } else {
-        res.status(401).json({ error: "Unauthorized" });
+        res.status(401).json({ error: "Wrong password or email" });
       }
     } else {
-      res.status(400).json({ message: "User not found" });
+      res.status(400).json({ error: "User not found" });
     }
   } catch (error) {
     console.log(error.message);
