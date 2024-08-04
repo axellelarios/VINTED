@@ -22,8 +22,6 @@ require('dotenv').config();
 const mongoose = require("mongoose");
 mongoose.connect(process.env.MONGODB_URI);
  
-const cors = require("cors");
-
 // Stripe
 const stripe = require("stripe")(process.env.STRIPE_API_SECRET);  
 
