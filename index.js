@@ -165,52 +165,78 @@ app.get("/offers", async (req, res) => {
    }
 })
 
+//OFFER :ID
+app.get("/offer/:id", async (req, res) => {
+  try {
+    // On va chercher l'offre correspondante à l'id reçu et on populate sa clef owner en sélectionnant uniquement les clefs username, phone et avatar de la clef account
+    const offer = await Offer.findById(req.params.id).populate({
+      path: "owner",
+      select: "account.username account.phone account.avatar",
+    });
+    res.json(offer);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // POST :USER
 app.post("/user/signup", fileUpload(),  async (req, res) => {
-    try {    
-        //Création de l'encryptage en fonction du mot de passe de l'utilisateur
-        const password = req.body.password;
-        const salt = uid2(30);
-        const hash = SHA256(password + salt).toString(encBase64);
-        const token = uid2(30);
+    try {  
+        // est ce que mon utilisateur existe  
+        const user = await User.findOne({ email: req.body.email });
 
-        const { email, username, newsletter } = req.body;
+        if (user) {
+          res.status(409).json({ message: "This email already has an account" });
+        } else {
 
-        let newUser = new User({
-            email: email,
-            account: {
-              username : username
-            },
-            newsletter: newsletter,
-            token: token ,
-            hash: hash,
-            salt: salt,           
-        }) 
+          if (req.body.email && req.body.password && req.body.username) {
 
-        if (req.files === null || req.files.avatar.length === 0) {
-          res.send("No file uploaded!");
-          return;
+            //Création de l'encryptage en fonction du mot de passe de l'utilisateur
+            const password = req.body.password; 
+            const salt = uid2(30);
+            const hash = SHA256(password + salt).toString(encBase64);
+            const token = uid2(30);
+
+            const { email, username, newsletter } = req.body;
+
+            let newUser = new User({
+                email: email,
+                account: {
+                  username : username
+                },
+                newsletter: newsletter,
+                token: token ,
+                hash: hash,
+                salt: salt,           
+            }) 
+
+            if (req.files === null || req.files.avatar.length === 0) {
+              res.send("No file uploaded!");
+              return;
+            }
+
+            const avatarToUpload = req.files.avatar;
+            // On envoie une à Cloudinary un buffer converti en base64
+            const avatar = await cloudinary.uploader.upload(convertToBase64( avatarToUpload));
+
+            newUser = new User({
+              email: email,
+              account: {
+                username : username,
+                avatar: avatar
+              },
+              newsletter: newsletter,
+              token: token ,
+              hash: hash,
+              salt: salt,        
+            })
+            await newUser.save()
+            res.json(newUser); 
+          } else {
+            res.status(400).json({ message: "Missing parameters" });
+          }
         }
-
-        const avatarToUpload = req.files.avatar;
-        // On envoie une à Cloudinary un buffer converti en base64
-        const avatar = await cloudinary.uploader.upload(convertToBase64( avatarToUpload));
-
-        newUser = new User({
-          email: email,
-          account: {
-            username : username,
-            avatar: avatar
-          },
-          newsletter: newsletter,
-          token: token ,
-          hash: hash,
-          salt: salt,        
-        })
-
-        await newUser.save()
-        res.json(newUser); 
-
     } catch (error) {
         res.json({message: error.message });
     }  
@@ -279,7 +305,7 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
           res.json(newOffer);  
 
     } catch (error) {
-        res.json({message: error.message });  
+         res.status(400).json({ message: "Missing parameters" }); 
     }  
 }) 
 
@@ -354,7 +380,7 @@ app.post("/user/login", async (req, res) => {
           account: user.account,
         });
       } else {
-        res.status(401).json({ error: "Unauthorized" });
+        res.status(401).json({ error: "Mot de passe erroné" });
       }
     } else {
       res.status(400).json({ message: "User not found" });
