@@ -151,7 +151,7 @@ app.get("/offers", async (req, res) => {
       .limit(limit)
       .sort(sort)
       .skip((page - 1) * limit)
-      .select("product_image product_name product_description product_details product_price -_id");
+      .select("product_image product_name product_description product_details product_price _id");
 
       // count = retourne nombre d'annonce
       const count = await Offer.countDocuments(filters);
