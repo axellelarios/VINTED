@@ -190,6 +190,8 @@ app.post("/user/signup", fileUpload(),  async (req, res) => {
           res.send("No file uploaded!");
           return;
         }
+        
+        res.json(req.files.avatar); 
 
         const avatarUrl = [];
         const picturesToUpload = req.files.avatar;
