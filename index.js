@@ -22,6 +22,9 @@ require('dotenv').config();
 const mongoose = require("mongoose");
 mongoose.connect(process.env.MONGODB_URI);
  
+// Stripe
+const stripe = require("stripe")(process.env.STRIPE_API_SECRET); 
+
 //-- Encryptage mot de passe
 const SHA256 = require("crypto-js/sha256");
 const encBase64 = require("crypto-js/enc-base64");  
@@ -89,11 +92,30 @@ const isAuthenticated = async (req, res, next) => {
 
 /// ROUTES
 
-
 app.get("/", (req, res) => {
   res.json({message: "It's live bitches!!"});  
 })
 
+
+app.post("/payment", async (req, res) => {
+  try {
+
+    const { amount, eur, title } = req.body;
+    // On crée une intention de paiement
+    const paymentIntent = await stripe.paymentIntents.create({
+      // Montant de la transaction
+      amount: amount,
+      // Devise de la transaction
+      currency: eur,
+      // Description du produit
+      description: title,
+    });
+    // On renvoie les informations de l'intention de paiement au client
+    res.json(paymentIntent);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 app.get("/offers", async (req, res) => {
    try {
@@ -179,68 +201,6 @@ app.get("/offer/:id", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
-// POST :USER
-app.post("/user/signup", fileUpload(),  async (req, res) => {
-    try {  
-        // est ce que mon utilisateur existe  
-        const user = await User.findOne({ email: req.body.email });
-
-        if (user) {
-          res.status(409).json({ message: "This email already has an account" });
-        } else {
-
-          if (req.body.email && req.body.password && req.body.username) {
-
-            //Création de l'encryptage en fonction du mot de passe de l'utilisateur
-            const password = req.body.password; 
-            const salt = uid2(30);
-            const hash = SHA256(password + salt).toString(encBase64);
-            const token = uid2(30);
-
-            const { email, username, newsletter } = req.body;
-
-            let newUser = new User({
-                email: email,
-                account: {
-                  username : username
-                },
-                newsletter: newsletter,
-                token: token ,
-                hash: hash,
-                salt: salt,           
-            }) 
-
-            if (req.files === null || req.files.avatar.length === 0) {
-              res.send("No file uploaded!");
-              return;
-            }
-
-            const avatarToUpload = req.files.avatar;
-            // On envoie une à Cloudinary un buffer converti en base64
-            const avatar = await cloudinary.uploader.upload(convertToBase64( avatarToUpload));
-
-            newUser = new User({
-              email: email,
-              account: {
-                username : username,
-                avatar: avatar
-              },
-              newsletter: newsletter,
-              token: token ,
-              hash: hash,
-              salt: salt,        
-            })
-            await newUser.save()
-            res.json(newUser); 
-          } else {
-            res.status(400).json({ message: "Missing parameters" });
-          }
-        }
-    } catch (error) {
-        res.json({message: error.message });
-    }  
-})
 
 
 // OFFER : PUBLISH
