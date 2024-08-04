@@ -171,7 +171,7 @@ app.get("/offer/:id", async (req, res) => {
     // On va chercher l'offre correspondante à l'id reçu et on populate sa clef owner en sélectionnant uniquement les clefs username, phone et avatar de la clef account
     const offer = await Offer.findById(req.params.id).populate({
       path: "owner",
-      select: "account.username account.phone account.avatar",
+      select: "account.username account.avatar",
     });
     res.json(offer);
   } catch (error) {
@@ -241,8 +241,6 @@ app.post("/user/signup", fileUpload(),  async (req, res) => {
         res.json({message: error.message });
     }  
 })
-
-
 
 
 // Routes pour poster une annonce
