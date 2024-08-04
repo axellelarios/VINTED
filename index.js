@@ -113,7 +113,6 @@ app.get("/offers", async (req, res) => {
 
     // si on reçois un priceMax
     if (req.query.priceMax) {
-        console.log(req.query.priceMax);
         if(filters.product_price) {
           filters.product_price.$lte = req.query.priceMax
         } else (
@@ -141,9 +140,6 @@ app.get("/offers", async (req, res) => {
       page = Number(req.query.page);
     }
 
-    console.log(filters);
-    console.log(sort);
-
      const limit = 10
 
      const offers = await Offer.find(filters)
@@ -154,7 +150,7 @@ app.get("/offers", async (req, res) => {
       .limit(limit)
       .sort(sort)
       .skip((page - 1) * limit)
-      .select("product_name product_price -_id");
+      .select("product_images product_name product_description product_details product_price -_id");
 
       // count = retourne nombre d'annonce
       const count = await Offer.countDocuments(filters);
@@ -211,8 +207,6 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
             product_details: [condition, city, brand, size, color], 
           }); 
 
- 
-
           if (req.files === null || req.files.picture.length === 0) {
             res.send("No file uploaded!");
             return;
@@ -228,8 +222,6 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
              });
              arrayOfFilesUrl.push(result.secure_url);
           }
-
-          res.json(arrayOfFilesUrl);
 
           newOffer = new Offer({
             product_name: title,
