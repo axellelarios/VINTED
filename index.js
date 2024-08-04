@@ -381,7 +381,7 @@ app.post("/user/signup", fileUpload(),  async (req, res) => {
 app.post("/user/login", async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
-
+    console.log(user)
     if (user) {
       // Est-ce qu'il a rentré le bon mot de passe ?
       // req.body.password
@@ -396,7 +396,7 @@ app.post("/user/login", async (req, res) => {
           account: user.account,
         });
       } else {
-        res.status(401).json({ message: "Mot de passe erroné" });
+        res.status(401).json({ error: "Unauthorized" });
       }
     } else {
       res.status(400).json({ message: "User not found" });
