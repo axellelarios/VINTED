@@ -175,21 +175,22 @@ app.post("/user/signup", fileUpload(),  async (req, res) => {
 
         const { email, username, newsletter } = req.body;
 
-        const newUser = new User({
-            email,
+        let newUser = new User({
+            email: email,
             account: {
-              username
+              username : username
             },
-            newsletter,
-            token,
-            hash,
-            salt,        
+            newsletter: newsletter,
+            token: token ,
+            hash: hash,
+            salt: salt,           
         }) 
 
         if (req.files === null || req.files.avatar.length === 0) {
           res.send("No file uploaded!");
           return;
         }
+
         const avatarUrl = [];
         const picturesToUpload = req.files.avatar;
 
@@ -203,15 +204,15 @@ app.post("/user/signup", fileUpload(),  async (req, res) => {
         }
 
         newUser = new User({
-          email,
+          email: email,
           account: {
-            username,
+            username : username,
             avatar: avatarUrl
           },
-          newsletter,
-          token,
-          hash,
-          salt,        
+          newsletter: newsletter,
+          token: token ,
+          hash: hash,
+          salt: salt,        
         })
 
         await newUser.save()
@@ -240,6 +241,7 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
             res.send("No file uploaded!");
             return;
           }
+
           const arrayOfFilesUrl = [];
           const picturesToUpload = req.files.picture;
 
