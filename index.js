@@ -53,7 +53,7 @@ const User = mongoose.model("User", {
         newsletter: Boolean,
         token: String,
         hash: String,
-        salt: String, 
+        salt: String
 })
 
 const Offer = mongoose.model("Offer", {
@@ -412,10 +412,8 @@ app.post("/user/login", async (req, res) => {
 app.get("/user/:id", async (req, res) => {
   try {
     // On va chercher l'user à l'id reçu et on populate sa clef owner en sélectionnant u
-    const user = await User.findById(req.params.id).populate({
-      path: "offers",
-      select: "_id product_image product_details product_price",
-    });
+    const user = await User.findById(req.params.id)
+
     res.json(user);
   } catch (error) {
     console.log(error.message);
