@@ -22,8 +22,10 @@ require('dotenv').config();
 const mongoose = require("mongoose");
 mongoose.connect(process.env.MONGODB_URI);
  
+const cors = require("cors");
+
 // Stripe
-const stripe = require("stripe")(process.env.STRIPE_API_SECRET); 
+const stripe = require("stripe")(process.env.STRIPE_API_SECRET);  
 
 //-- Encryptage mot de passe
 const SHA256 = require("crypto-js/sha256");
@@ -201,7 +203,6 @@ app.get("/offer/:id", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
 
 // OFFER : PUBLISH
 app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
