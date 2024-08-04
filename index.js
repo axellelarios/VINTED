@@ -243,7 +243,7 @@ app.post("/user/signup", fileUpload(),  async (req, res) => {
 })
 
 
-// Routes pour poster une annonce
+// OFFER : PUBLISH
 app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
     try { 
 
@@ -253,7 +253,13 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
             product_name: title,
             product_description: description,
             product_price: price,
-            product_details: [condition, city, brand, size, color], 
+            product_details: [
+              { MARQUE: brand },
+              { TAILLE: size },
+              { ÉTAT: condition },
+              { COULEUR: color },
+              { EMPLACEMENT: city },
+            ],
           }); 
 
           if (req.files === null || req.files.picture.length === 0) {
@@ -279,7 +285,13 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
             product_description: description,
             product_price: price,
             product_image: arrayOfFilesUrl,
-            product_details: [condition, city, brand, size, color],
+            product_details: [
+              { MARQUE: brand },
+              { TAILLE: size },
+              { ÉTAT: condition },
+              { COULEUR: color },
+              { EMPLACEMENT: city },
+            ],  
             owner: req.user
           }); 
           } else {
@@ -293,7 +305,13 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
               product_description: description,
               product_price: price,
               product_image: picture,
-              product_details: [condition, city, brand, size, color],
+              product_details: [
+                { MARQUE: brand },
+                { TAILLE: size },
+                { ÉTAT: condition },
+                { COULEUR: color },
+                { EMPLACEMENT: city },
+              ],    
               owner: req.user
             }); 
           }
