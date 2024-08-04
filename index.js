@@ -255,7 +255,7 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
             product_details: [condition, city, brand, size, color],
             owner: req.user
           }); 
-          } else if (req.files.picture.length === 1) {
+          } else {
 
             const pictureToUpload = req.files.picture;
             // On envoie une à Cloudinary un buffer converti en base64
