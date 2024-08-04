@@ -234,6 +234,7 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
             return;
           }
 
+          if (req.files.picture.length > 1) {
           const arrayOfFilesUrl = [];
           const picturesToUpload = req.files.picture;
 
@@ -254,6 +255,22 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
             product_details: [condition, city, brand, size, color],
             owner: req.user
           }); 
+          } else if (req.files.picture.length === 1) {
+
+            const pictureToUpload = req.files.picture;
+            // On envoie une à Cloudinary un buffer converti en base64
+            const picture = await cloudinary.uploader.upload(convertToBase64(pictureToUpload));  
+
+            newOffer = new Offer({
+              product_name: title,
+              product_description: description,
+              product_price: price,
+              product_image: picture,
+              product_details: [condition, city, brand, size, color],
+              owner: req.user
+            }); 
+          }
+
           
           await newOffer.save() 
           res.json(newOffer);  
