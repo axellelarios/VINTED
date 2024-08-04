@@ -165,7 +165,7 @@ app.get("/offers", async (req, res) => {
 })
 
 // POST :USER
-app.post("/user/login", fileUpload(),  async (req, res) => {
+app.post("/user/sign_up", fileUpload(),  async (req, res) => {
     try {    
         //Création de l'encryptage en fonction du mot de passe de l'utilisateur
         const password = req.body.password;
