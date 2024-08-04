@@ -265,7 +265,7 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
               product_name: title,
               product_description: description,
               product_price: price,
-              product_image: picture,
+              product_image: picture.secure_url,
               product_details: [condition, city, brand, size, color],
               owner: req.user
             }); 
