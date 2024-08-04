@@ -408,6 +408,23 @@ app.post("/user/login", async (req, res) => {
 });
 
 
+// GET :USER :ID
+app.get("/user/:id", async (req, res) => {
+  try {
+    // On va chercher l'user à l'id reçu et on populate sa clef owner en sélectionnant u
+    const user = await User.findById(req.params.id).populate({
+      path: "offers",
+      select: "_id product_image product_details product_price",
+    });
+    res.json(user);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ message: error.message }); 
+  }
+});
+
+
+
 // Je récupère toutes les routes, même celles qui ne fonctionne pas
 app.all("*", (req, res) => {
     res.json({message: "Page not found"}); 
