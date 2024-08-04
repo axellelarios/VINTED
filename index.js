@@ -244,7 +244,7 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
               folder: `/vinted/offers/${newOffer._id}`,
               public_id: "olympic_flag" 
              });
-             arrayOfFilesUrl.push(result.secure_url);
+             arrayOfFilesUrl.push(result);
           }
 
           newOffer = new Offer({
@@ -265,7 +265,7 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
               product_name: title,
               product_description: description,
               product_price: price,
-              product_image: picture.secure_url,
+              product_image: picture,
               product_details: [condition, city, brand, size, color],
               owner: req.user
             }); 
