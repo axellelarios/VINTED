@@ -173,7 +173,7 @@ app.post("/user/signup", fileUpload(),  async (req, res) => {
         const hash = SHA256(password + salt).toString(encBase64);
         const token = uid2(30);
 
-        const { email, username, avatar, newsletter } = req.body;
+        const { email, username, newsletter } = req.body;
 
         const newUser = new User({
             email,
