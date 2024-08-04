@@ -48,7 +48,7 @@ const User = mongoose.model("User", {
         email: String,
         account: {
           username: String,
-          avatar: Object, // nous verrons plus tard comment uploader une image
+          avatar: Object, 
         },
         newsletter: Boolean,
         token: String,
@@ -165,7 +165,7 @@ app.get("/offers", async (req, res) => {
 })
 
 // POST :USER
-app.post("/user/sign_up", fileUpload(),  async (req, res) => {
+app.post("/user/signup", fileUpload(),  async (req, res) => {
     try {    
         //Création de l'encryptage en fonction du mot de passe de l'utilisateur
         const password = req.body.password;
@@ -173,18 +173,47 @@ app.post("/user/sign_up", fileUpload(),  async (req, res) => {
         const hash = SHA256(password + salt).toString(encBase64);
         const token = uid2(30);
 
-        const { email, username, newsletter } = req.body;
+        const { email, username, avatar, newsletter } = req.body;
 
         const newUser = new User({
             email,
             account: {
-              username,
+              username
             },
             newsletter,
             token,
             hash,
             salt,        
+        }) 
+
+        if (req.files === null || req.files.avatar.length === 0) {
+          res.send("No file uploaded!");
+          return;
+        }
+        const avatarUrl = [];
+        const picturesToUpload = req.files.avatar;
+
+        for (let i = 0; i < picturesToUpload.length; i++) {
+           const picture = picturesToUpload[i];
+           const result = await cloudinary.uploader.upload(convertToBase64(picture), {
+            folder: `/vinted/user/${newOffer._id}`,
+            public_id: "olympic_flag" 
+           });
+           avatarUrl.push(result.secure_url);
+        }
+
+        newUser = new User({
+          email,
+          account: {
+            username,
+            avatar: avatarUrl
+          },
+          newsletter,
+          token,
+          hash,
+          salt,        
         })
+
         await newUser.save()
         res.json(newUser); 
 
