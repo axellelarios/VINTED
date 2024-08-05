@@ -108,7 +108,7 @@ app.post("/payment", async (req, res) => {
       // Devise de la transaction
       currency: currency,
       // Description du produit
-      description: description,
+      description: description, 
     });
     // On renvoie les informations de l'intention de paiement au client
     res.json(paymentIntent);
@@ -296,41 +296,62 @@ app.post("/user/signup", fileUpload(),  async (req, res) => {
 
         const { email, username, newsletter } = req.body;
 
-        let newUser = new User({
-            email: email,
-            account: {
-              username : username
-            },
-            newsletter: newsletter,
-            token: token ,
-            hash: hash,
-            salt: salt,           
-        }) 
+        // Recherche dans la BDD. Est-ce qu'un utilisateur possède cet email ?
+        const user = await User.findOne({ email: req.body.email });
+         // Si oui, on renvoie un message et on ne procède pas à l'inscription
+        if (user) {
+          res.status(409).json({ message: "This email already has an account" });
+        } else {
 
-        if (req.files === null || req.files.avatar.length === 0) {
-          res.send("No file uploaded!");
-          return;
-        }
+            if (email && password && username) {
+                  let newUser = new User({
+                      email: email,
+                      account: {
+                        username : username
+                      },
+                      newsletter: newsletter,
+                      token: token ,
+                      hash: hash,
+                      salt: salt,           
+                  }) 
 
-        const avatarToUpload = req.files.avatar;
-        // On envoie une à Cloudinary un buffer converti en base64
-        const avatar = await cloudinary.uploader.upload(convertToBase64( avatarToUpload));
+                  if (req.files === null || req.files.avatar.length === 0) {
+                    newUser = new User({
+                      email: email,
+                      account: {
+                        username : username
+                      },
+                      newsletter: newsletter,
+                      token: token ,
+                      hash: hash,
+                      salt: salt,        
+                    })
 
-        newUser = new User({
-          email: email,
-          account: {
-            username : username,
-            avatar: avatar
-          },
-          newsletter: newsletter,
-          token: token ,
-          hash: hash,
-          salt: salt,        
-        })
-
+                  } else {
+                    const avatarToUpload = req.files.avatar;
+                    // On envoie une à Cloudinary un buffer converti en base64
+                    const avatar = await cloudinary.uploader.upload(convertToBase64( avatarToUpload));
+      
+                    newUser = new User({
+                      email: email,
+                      account: {
+                        username : username,
+                        avatar: avatar
+                      },
+                      newsletter: newsletter,
+                      token: token ,
+                      hash: hash,
+                      salt: salt,        
+                    })
+                  }
+            } else {
+                  // l'utilisateur n'a pas envoyé les informations requises ?
+                  res.status(400).json({ message: "Missing parameters" });
+            }
+        }   
         await newUser.save()
         res.json(newUser); 
-
+        
     } catch (error) {
         res.json({message: error.message });
     }  
@@ -340,7 +361,7 @@ app.post("/user/signup", fileUpload(),  async (req, res) => {
 app.post("/user/login", async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
-    console.log(user)
+
     if (user) {
       // Est-ce qu'il a rentré le bon mot de passe ?
       // req.body.password
