@@ -296,9 +296,8 @@ app.post("/user/signup", fileUpload(),  async (req, res) => {
 
         const { email, username, newsletter } = req.body;
 
-        // Recherche dans la BDD. Est-ce qu'un utilisateur possède cet email ?
-        const user = await User.findOne({ email: req.body.email });
-         // Si oui, on renvoie un message et on ne procède pas à l'inscription
+        const user = await User.findOne({ email: email });
+
         if (user) {
           res.status(409).json({ message: "This email already has an account" });
         } else {
@@ -326,10 +325,11 @@ app.post("/user/signup", fileUpload(),  async (req, res) => {
                       hash: hash,
                       salt: salt,        
                     })
+                    await newUser.save()
+                    res.json(newUser); 
 
                   } else {
                     const avatarToUpload = req.files.avatar;
-                    // On envoie une à Cloudinary un buffer converti en base64
                     const avatar = await cloudinary.uploader.upload(convertToBase64( avatarToUpload));
       
                     newUser = new User({
@@ -343,14 +343,15 @@ app.post("/user/signup", fileUpload(),  async (req, res) => {
                       hash: hash,
                       salt: salt,        
                     })
+                    
+                    await newUser.save()
+                    res.json(newUser); 
                   }
             } else {
                   // l'utilisateur n'a pas envoyé les informations requises ?
                   res.status(400).json({ message: "Missing parameters" });
             }
         }   
-        await newUser.save()
-        res.json(newUser); 
         
     } catch (error) {
         res.json({message: error.message });
