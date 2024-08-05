@@ -407,9 +407,10 @@ app.get("/user/:id", async (req, res) => {
     // On va chercher l'user à l'id reçu et on populate sa clef owner en sélectionnant u
     const user = await User.findById(req.params.id)
     .populate({
-      path:"offers"
+      path:"offers",
+      select: "product_name product_price",
     })
-    
+
     res.json(user); 
 
   } catch (error) {
