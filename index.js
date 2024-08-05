@@ -47,6 +47,14 @@ const convertToBase64 = (file) => {
 // Creation de mon model User
 //*soon* Import des models
 
+const Category = mongoose.model("Category", {
+  email: String,
+  account: {
+    username: String,
+    avatar: Object, 
+  },
+})
+
 const User = mongoose.model("User", {
         email: String,
         account: {
@@ -56,7 +64,11 @@ const User = mongoose.model("User", {
         newsletter: Boolean,
         token: String,
         hash: String,
-        salt: String
+        salt: String,
+        offers: { 
+          type: mongoose.Schema.Types.ObjectId, 
+          ref: 'Offer' 
+        }
 })
 
 const Offer = mongoose.model("Offer", {
@@ -343,7 +355,7 @@ app.post("/user/signup", fileUpload(),  async (req, res) => {
                       hash: hash,
                       salt: salt,        
                     })
-                    
+
                     await newUser.save()
                     res.json(newUser); 
                   }
@@ -393,9 +405,10 @@ app.post("/user/login", async (req, res) => {
 app.get("/user/:id", async (req, res) => {
   try {
     // On va chercher l'user à l'id reçu et on populate sa clef owner en sélectionnant u
-    const user = await User.findById(req.params.id)
+    const user = await User.findById(req.params.id).populate("offers")
+    
+    res.json(user); 
 
-    res.json(user);
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ message: error.message }); 
