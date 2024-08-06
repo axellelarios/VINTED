@@ -65,10 +65,10 @@ const User = mongoose.model("User", {
         token: String,
         hash: String,
         salt: String,
-        offers: { 
+        offers: [{ 
           type: mongoose.Schema.Types.ObjectId, 
           ref: 'Offer', 
-        },
+        }],
 });
 
 const Offer = mongoose.model("Offer", {
