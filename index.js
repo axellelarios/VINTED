@@ -68,7 +68,7 @@ const User = mongoose.model("User", {
         offers: [{ 
           type: mongoose.Schema.Types.ObjectId, 
           ref: 'Offer', 
-        }],
+        }], 
 });
 
 const Offer = mongoose.model("Offer", {
@@ -231,6 +231,7 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
               { COULEUR: color },
               { EMPLACEMENT: city },
             ],
+            owner: req.user._id
           }); 
 
           if (req.files === null || req.files.picture.length === 0) {
@@ -263,7 +264,7 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
               { COULEUR: color },
               { EMPLACEMENT: city },
             ],  
-            owner: req.user
+            owner: req.user._id
           }); 
           } else {
 
@@ -283,12 +284,15 @@ app.post("/offer/publish", isAuthenticated, fileUpload(), async (req, res) => {
                 { COULEUR: color },
                 { EMPLACEMENT: city },
               ],    
-              owner: req.user
+              owner: req.user._id
             }); 
-          }
-
-          
+          } 
           await newOffer.save() 
+          
+          // Adding the offer to the user's offers array
+          req.user.offers.push(newOffer._id);
+          await req.user.save();
+
           res.json(newOffer);  
 
     } catch (error) {
@@ -404,9 +408,12 @@ app.post("/user/login", async (req, res) => {
 // GET :USER :ID
 app.get("/user/:id", async (req, res) => {
   try {
+
+    const userWithoutPopulate = await User.findById(req.params.id);
+    console.log("User without populate:", userWithoutPopulate);
+
     // On va chercher l'user à l'id reçu et on populate sa clef owner en sélectionnant u
     const user = await User.findById(req.params.id).populate("offers")
-
     res.json(user); 
 
   } catch (error) {
